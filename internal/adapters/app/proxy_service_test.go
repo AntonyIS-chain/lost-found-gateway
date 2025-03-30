@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/AntonyIS-chain/lost-found-gateway/internal/domain"
+	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 )
 

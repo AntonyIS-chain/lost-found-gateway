@@ -25,7 +25,11 @@ func JWTMiddleware() gin.HandlerFunc {
 		}
 		tokenString := parts[1]
 
-		cfg := config.LoadConfig()
+		cfg, err := config.NewConfig()
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			return
+		}
 
 		// Validate token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -42,20 +46,22 @@ func JWTMiddleware() gin.HandlerFunc {
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
+
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"ok": "Invalid token claims"})
 			return
 		}
 
 		// Extract email from claims
-		email, ok := claims["email"].(string)
+		id, ok := claims["id"].(string)
+
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
 			return
 		}
 
-		// Store email in context for use in handlers
-		c.Set("email", email)
+		// Store id in context for use in handlers
+		c.Set("id", id)
 
 		c.Next()
 	}

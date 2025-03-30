@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/AntonyIS-chain/lost-found-gateway/internal/domain"
-	"github.com/AntonyIS-chain/lost-found-gateway/internal/ports"
+	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/domain"
+	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/ports"
 )
 
 type ProxyServiceImpl struct{}
