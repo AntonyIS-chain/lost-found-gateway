@@ -10,24 +10,26 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	ENV                  string
-	GATEWAY_PORT         string
-	USER_SERVICE         string
-	REWARD_SERVICE       string
-	PAYMENT_SERVICE      string
-	NOTIFICATION_SERVICE string
-	MATCHING_SERVICE     string
-	DOCUMENT_SERVICE     string
-	SECRET_KEY           string
-	POSTGRES_DB          string
-	POSTGRES_USER        string
-	POSTGRES_HOST        string
-	POSTGRES_PORT        string
-	POSTGRES_PASSWORD    string
-	ENABLE_LOGGING       bool
-	USER_TABLE           string
-	DEBUG                bool
-	TEST                 bool
+	ENV                      string
+	GATEWAY_PORT             string
+	USER_SERVICE             string
+	REWARD_SERVICE           string
+	PAYMENT_SERVICE          string
+	NOTIFICATION_SERVICE     string
+	MATCHING_SERVICE         string
+	DOCUMENT_SERVICE         string
+	SECRET_KEY               string
+	ACCESS_TOKEN_SECRET_KEY  string
+	REFRESH_TOKEN_SECRET_KEY string
+	POSTGRES_DB              string
+	POSTGRES_USER            string
+	POSTGRES_HOST            string
+	POSTGRES_PORT            string
+	POSTGRES_PASSWORD        string
+	ENABLE_LOGGING           bool
+	USER_TABLE               string
+	DEBUG                    bool
+	TEST                     bool
 }
 
 func (c *Config) NewConfig() (any, any) {
@@ -58,24 +60,26 @@ func NewConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		ENV:                  ENV,
-		GATEWAY_PORT:         getEnv("GATEWAY_PORT", "8080"),
-		USER_SERVICE:         getEnv("USER_SERVICE", "http://localhost:8081"),
-		REWARD_SERVICE:       getEnv("REWARD_SERVICE", "http://localhost:8082"),
-		PAYMENT_SERVICE:      getEnv("PAYMENT_SERVICE", "http://localhost:8083"),
-		NOTIFICATION_SERVICE: getEnv("NOTIFICATION_SERVICE", "http://localhost:8084"),
-		MATCHING_SERVICE:     getEnv("MATCHING_SERVICE", "http://localhost:8085"),
-		DOCUMENT_SERVICE:     getEnv("DOCUMENT_SERVICE", "http://localhost:8086"),
-		SECRET_KEY:           getEnv("SECRET_KEY", "default-secret-key"),
-		POSTGRES_DB:          getEnv("POSTGRES_DB", "mydatabase"),
-		POSTGRES_USER:        getEnv("POSTGRES_USER", "user"),
-		POSTGRES_HOST:        getEnv("POSTGRES_HOST", "localhost"),
-		POSTGRES_PORT:        getEnv("POSTGRES_PORT", "5432"),
-		POSTGRES_PASSWORD:    getEnv("POSTGRES_PASSWORD", "password"),
-		ENABLE_LOGGING:       enableLogging,
-		USER_TABLE:           "Users",
-		DEBUG:                ENV != "production",
-		TEST:                 ENV == "development_test" || ENV == "docker_test",
+		ENV:                      ENV,
+		GATEWAY_PORT:             getEnv("GATEWAY_PORT", "8080"),
+		USER_SERVICE:             getEnv("USER_SERVICE", "http://localhost:8081"),
+		REWARD_SERVICE:           getEnv("REWARD_SERVICE", "http://localhost:8082"),
+		PAYMENT_SERVICE:          getEnv("PAYMENT_SERVICE", "http://localhost:8083"),
+		NOTIFICATION_SERVICE:     getEnv("NOTIFICATION_SERVICE", "http://localhost:8084"),
+		MATCHING_SERVICE:         getEnv("MATCHING_SERVICE", "http://localhost:8085"),
+		DOCUMENT_SERVICE:         getEnv("DOCUMENT_SERVICE", "http://localhost:8086"),
+		SECRET_KEY:               getEnv("SECRET_KEY", "default-secret-key"),
+		ACCESS_TOKEN_SECRET_KEY:  getEnv("ACCESS_TOKEN_SECRET_KEY", "default-access-secret-key"),
+		REFRESH_TOKEN_SECRET_KEY: getEnv("REFRESH_TOKEN_SECRET_KEY", "default-refresh-secret-key"),
+		POSTGRES_DB:              getEnv("POSTGRES_DB", "mydatabase"),
+		POSTGRES_USER:            getEnv("POSTGRES_USER", "user"),
+		POSTGRES_HOST:            getEnv("POSTGRES_HOST", "localhost"),
+		POSTGRES_PORT:            getEnv("POSTGRES_PORT", "5432"),
+		POSTGRES_PASSWORD:        getEnv("POSTGRES_PASSWORD", "password"),
+		ENABLE_LOGGING:           enableLogging,
+		USER_TABLE:               "Users",
+		DEBUG:                    ENV != "production",
+		TEST:                     ENV == "development_test" || ENV == "docker_test",
 	}
 
 	// Override USER_TABLE based on environment

@@ -7,6 +7,7 @@ import (
 	app "github.com/AntonyIS-chain/lost-found-gateway/internal/adapters/app/handlers"
 	"github.com/AntonyIS-chain/lost-found-gateway/internal/adapters/postgresDB"
 	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/services"
+	"github.com/AntonyIS-chain/lost-found-gateway/pkg"
 )
 
 // GatewayServer initializes and starts the API Gateway
@@ -23,8 +24,15 @@ func GatewayServer() {
 		log.Fatalf("Failed to initialize database client: %v", err)
 	}
 
+
 	// Initialize services
+	rolesService := services.NewRoleManagementService(dbClient)
 	usersService := services.NewAuthenticationManagementService(dbClient, *conf)
+
+	// Seed "User Admin" role
+	pkg.SeedRoles(rolesService)
+	pkg.SeedUsers(usersService, rolesService)
+	// Initialize serviceserror
 
 	// Start HTTP server with initialized services
 	app.InitGinRoutes(usersService, conf)

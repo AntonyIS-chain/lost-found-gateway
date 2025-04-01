@@ -2,10 +2,13 @@ package pkg
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"net/http/httputil"
 	"net/url"
 	"time"
 
+	"github.com/AntonyIS-chain/lost-found-gateway/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
@@ -48,4 +51,34 @@ func ValidateToken(tokenString string, secret []byte) (jwt.MapClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func ExtractUserIDFromToken(refreshToken string) (string, error) {
+	
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		// Ensure token is signed with expected method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		conf, err := config.NewConfig()
+		if err != nil {
+			log.Fatalf("Failed to load config: %v", err)
+		}
+		// Provide the secret key used to sign the token
+		return []byte(conf.REFRESH_TOKEN_SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("invalid token: %v", err)
+	}
+
+	// Extract claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		if id, exists := claims["id"].(string); exists {
+			return id, nil
+		}
+		return "", fmt.Errorf("user_id not found in token")
+	}
+
+	return "", fmt.Errorf("invalid token claims")
 }

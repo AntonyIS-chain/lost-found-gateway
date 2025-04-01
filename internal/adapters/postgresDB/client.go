@@ -37,7 +37,7 @@ func NewPostgresDBClient(appConfig *config.Config) (*PostgresDBClient, error) {
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
 	// Run migrations once
-	err = db.AutoMigrate(&domain.UserToken{})
+	err = db.AutoMigrate(&domain.UserToken{}, domain.User{}, domain.UserRole{}, domain.Role{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run migrations: %w", err)
 	}

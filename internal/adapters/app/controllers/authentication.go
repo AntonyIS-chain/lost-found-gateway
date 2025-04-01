@@ -8,10 +8,10 @@ import (
 )
 
 type AuthenticationController struct {
-	service ports.AuthenticationService
+	service ports.AuthService
 }
 
-func NewAuthenticationController(service ports.AuthenticationService) *AuthenticationController {
+func NewAuthenticationController(service ports.AuthService) *AuthenticationController {
 	return &AuthenticationController{service: service}
 }
 
@@ -37,7 +37,7 @@ func (uc *AuthenticationController) Authenticate(ctx *gin.Context) {
 
 func (uc *AuthenticationController) RefreshToken(ctx *gin.Context) {
 	var req struct {
-		RefreshToken string `json:"refreshToken" binding:"required"`
+		RefreshToken string `json:"refresh_token" binding:"required"`
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -80,5 +80,33 @@ func (uc *AuthenticationController) ValidateToken(ctx *gin.Context) {
 		"success":    false,
 		"statusCode": 401,
 		"valid":      res,
+	})
+}
+
+func (uc *AuthenticationController) InValidateToken(ctx *gin.Context) {
+	var refreshTokenRequest struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	if err := ctx.ShouldBindJSON(&refreshTokenRequest); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := uc.service.InvalidateRefreshToken(refreshTokenRequest.RefreshToken)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"message":    "Invalid credentials",
+			"success":    false,
+			"statusCode": 401,
+		})
+		return
+	}
+
+	// Return tokens
+	ctx.JSON(http.StatusOK, gin.H{
+		"message":    "Invalid credentials",
+		"success":    false,
+		"statusCode": 401,
 	})
 }
