@@ -56,6 +56,7 @@ func (a *AuthenticationManagementService) Authenticate(email, password string) (
 
 // RefreshToken generates a new access token if the refresh token is valid
 func (a *AuthenticationManagementService) RefreshToken(refreshToken string) (domain.AuthResponse, error) {
+
 	// Validate the refresh token using the correct secret key
 	claims, err := pkg.ValidateToken(refreshToken, []byte(a.config.REFRESH_TOKEN_SECRET_KEY))
 	if err != nil {
@@ -106,7 +107,7 @@ func (a *AuthenticationManagementService) RefreshToken(refreshToken string) (dom
 
 // ValidateToken checks if the given token is valid and not expired
 func (a *AuthenticationManagementService) ValidateToken(token string) (bool, error) {
-	_, err := pkg.ValidateToken(token, []byte(a.config.SECRET_KEY))
+	_, err := pkg.ValidateToken(token, []byte(a.config.ACCESS_TOKEN_SECRET_KEY))
 	if err != nil {
 		return false, errors.New("invalid token")
 	}
@@ -115,7 +116,7 @@ func (a *AuthenticationManagementService) ValidateToken(token string) (bool, err
 
 // InvalidateRefreshToken revokes the given refresh token (logout)
 func (a *AuthenticationManagementService) InvalidateRefreshToken(refreshToken string) error {
-	
+
 	// Call the repository method to revoke the token
 	err := a.repo.InvalidateRefreshToken(refreshToken)
 	if err != nil {

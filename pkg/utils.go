@@ -42,19 +42,25 @@ func ValidateToken(tokenString string, secret []byte) (jwt.MapClaims, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		// Optional: Log full error here
+		return nil, fmt.Errorf("error parsing token: %w", err)
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		return nil, errors.New("invalid token")
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token signature or expired")
 	}
 
 	return claims, nil
 }
 
+
 func ExtractUserIDFromToken(refreshToken string) (string, error) {
-	
+
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		// Ensure token is signed with expected method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

@@ -25,10 +25,11 @@ type User struct {
 }
 
 type UserToken struct {
-	ID      string `json:"id" db:"id"`
-	Token   string `json:"token"  db:"token"`
-	Revoked bool `json:"revoked"  db:"revoked"`
+	ID      string `json:"id" gorm:"column:id"`
+	Token   string `json:"token" gorm:"column:token"`
+	Revoked bool   `json:"revoked" gorm:"column:revoked"`
 }
+
 
 type Role struct {
 	ID          int       `json:"id" gorm:"primaryKey;autoIncrement"`

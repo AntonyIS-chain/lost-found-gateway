@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/ports"
 	"github.com/gin-gonic/gin"
@@ -56,30 +57,35 @@ func (uc *AuthenticationController) RefreshToken(ctx *gin.Context) {
 
 func (uc *AuthenticationController) ValidateToken(ctx *gin.Context) {
 	var refreshTokenRequest struct {
-		Token string `json:"token"`
+		Token string `json:"access_token"`
 	}
 
 	if err := ctx.ShouldBindJSON(&refreshTokenRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 		return
 	}
 
-	res, err := uc.service.ValidateToken(refreshTokenRequest.Token)
+	if strings.TrimSpace(refreshTokenRequest.Token) == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "access_token is required"})
+		return
+	}
+
+	claims, err := uc.service.ValidateToken(refreshTokenRequest.Token)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"message":    "Invalid credentials",
+			"message":    err.Error(),
 			"success":    false,
-			"statusCode": 401,
+			"statusCode": http.StatusUnauthorized,
 		})
 		return
 	}
 
-	// Return tokens
 	ctx.JSON(http.StatusOK, gin.H{
-		"message":    "Invalid credentials",
-		"success":    false,
-		"statusCode": 401,
-		"valid":      res,
+		"message":    "Valid credentials",
+		"success":    true,
+		"statusCode": http.StatusOK,
+		"valid":      true,
+		"claims":     claims,
 	})
 }
 
@@ -105,8 +111,8 @@ func (uc *AuthenticationController) InValidateToken(ctx *gin.Context) {
 
 	// Return tokens
 	ctx.JSON(http.StatusOK, gin.H{
-		"message":    "Invalid credentials",
-		"success":    false,
-		"statusCode": 401,
+		"message":    "Token revocked successfuly",
+		"success":    true,
+		"statusCode": 200,
 	})
 }

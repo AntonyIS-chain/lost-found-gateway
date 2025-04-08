@@ -1,6 +1,7 @@
 package postgresDB
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/domain"
@@ -29,7 +30,7 @@ func (c *PostgresDBClient) RegisterUser(user domain.User) (domain.User, error) {
 		return domain.User{}, fmt.Errorf("failed to register user: %w", err)
 	}
 
-	userToken := domain.UserToken{ID: user.ID, Token: "Initial----token"}
+	userToken := domain.UserToken{ID: user.ID, Token: ""}
 	if err := c.DB.Create(&userToken).Error; err != nil {
 		return domain.User{}, fmt.Errorf("failed to create user id and token: %w", err)
 	}
@@ -47,17 +48,24 @@ func (c *PostgresDBClient) GetUserByEmail(email string) (domain.User, error) {
 }
 
 func (c *PostgresDBClient) IsRefreshTokenValid(ID, refreshToken string) (bool, error) {
-	var count int64
-	err := c.DB.Model(&domain.UserToken{}).Where("id = ? AND token = ?", ID, refreshToken).Count(&count).Error
-	if err != nil {
-		return false, err
+	var token domain.UserToken
+	err := c.DB.Select("id").Where("id = ? AND token = ? AND revoked = false", ID, refreshToken).Take(&token).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
 	}
-	return count > 0, nil
+	if err != nil {
+		return false, fmt.Errorf("failed to validate refresh token: %w", err)
+	}
+	return true, nil
 }
 
 func (c *PostgresDBClient) StoreRefreshToken(ID, refreshToken string) error {
 	userToken := domain.UserToken{}
-	err := c.DB.Model(&userToken).Where("id = ?", ID).Update("token", refreshToken).Error
+	err := c.DB.Model(&userToken).Where("id = ?", ID).Updates(map[string]interface{}{
+		"token":   refreshToken,
+		"revoked": false,
+	}).Error
+
 	if err != nil {
 		return fmt.Errorf("failed to store refresh token: %w", err)
 	}
@@ -65,17 +73,16 @@ func (c *PostgresDBClient) StoreRefreshToken(ID, refreshToken string) error {
 }
 
 func (c *PostgresDBClient) InvalidateRefreshToken(refreshToken string) error {
+
 	userID, err := pkg.ExtractUserIDFromToken(refreshToken)
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to extract userID from token: %w", err)
 	}
-
 	// Set the token as revoked instead of deleting it (better for logging)
 	result := c.DB.Model(&domain.UserToken{}).
-		Where("user_id = ? AND token = ?", userID, refreshToken).
+		Where("id = ? AND token = ?", userID, refreshToken).
 		Update("revoked", true) // Assuming you have a `revoked` column
-
 	if result.Error != nil {
 		return fmt.Errorf("failed to invalidate refresh token: %w", result.Error)
 	}

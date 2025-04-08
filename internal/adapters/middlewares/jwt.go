@@ -37,7 +37,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
-			return []byte(cfg.SECRET_KEY), nil
+			return []byte(cfg.ACCESS_TOKEN_SECRET_KEY), nil
 		})
 
 		if err != nil || !token.Valid {
