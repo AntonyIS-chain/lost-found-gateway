@@ -57,7 +57,13 @@ type ProxyResponse struct {
 	Body       []byte
 }
 
+type SessionUser struct {
+	ID string `json:"id"`
+	Role string `json:"role"`
+}
+
 type AuthResponse struct {
 	Access_token  string `json:"access_token"`
 	Refresh_token string `json:"refresh_token"`
+	SessionUser SessionUser `json:"session_user"`
 }

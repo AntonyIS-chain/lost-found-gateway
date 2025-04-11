@@ -31,6 +31,7 @@ func (c *PostgresDBClient) RegisterUser(user domain.User) (domain.User, error) {
 	}
 
 	userToken := domain.UserToken{ID: user.ID, Token: ""}
+	
 	if err := c.DB.Create(&userToken).Error; err != nil {
 		return domain.User{}, fmt.Errorf("failed to create user id and token: %w", err)
 	}

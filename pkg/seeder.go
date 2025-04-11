@@ -15,10 +15,9 @@ func SeedRoles(roleService ports.RoleService) {
 	}
 
 	roleNames := []domain.Role{
-		{Name: "User Admin", Description: "Administrator with full access to the system"},
+		{Name: "Administrator", Description: "Administrator with full access to the system"},
 		{Name: "Moderator", Description: "Can moderate user content"},
-		{Name: "Registered User", Description: "Standard user with basic privileges"},
-		{Name: "Guest User", Description: "Limited access user"},
+		{Name: "Guest", Description: "Limited access user"},
 	}
 
 	existingRoleMap := make(map[string]bool)
@@ -67,10 +66,9 @@ func SeedUsers(userService ports.AuthService, roleService ports.RoleService) {
 	}
 
 	users := []domain.User{
-		{FirstName: "Admin", LastName: "User", Email: "admin@example.com", RoleName: "User Admin"},
-		{FirstName: "Moderator", LastName: "User", Email: "moderator@example.com", RoleName: "Moderator"},
-		{FirstName: "John", LastName: "Doe", Email: "user@example.com", RoleName: "Registered User"},
-		{FirstName: "Guest", LastName: "User", Email: "guest@example.com", RoleName: "Guest User"},
+		{FirstName: "John", LastName: "Doe", Email: "admin@example.com", RoleName: "Administrator"},
+		{FirstName: "Mark", LastName: "Tess", Email: "moderator@example.com", RoleName: "Moderator"},
+		{FirstName: "Mike", LastName: "Tesla", Email: "guest@example.com", RoleName: "Guest"},
 	}
 
 	for _, user := range users {

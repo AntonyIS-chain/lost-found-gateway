@@ -59,7 +59,7 @@ func InitGinRoutes(userSvc ports.AuthService, config *config.Config) {
 
 	// Protected Routes (Require valid JWT)
 	protectedRoutes := router.Group("/")
-	protectedRoutes.Use(middlewares.JWTMiddleware())
+	// protectedRoutes.Use(middlewares.JWTMiddleware())
 
 	// User Service Routes
 	userRoutes := protectedRoutes.Group("/v1/api/users")

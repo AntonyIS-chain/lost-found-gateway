@@ -27,7 +27,7 @@ func NewAuthenticationManagementService(repo ports.AuthenticationRepository, con
 
 func (a *AuthenticationManagementService) Authenticate(email, password string) (domain.AuthResponse, error) {
 	user, err := a.repo.GetUserByEmail(email)
-
+	fmt.Println("USER", user)
 	if err != nil {
 		return domain.AuthResponse{}, errors.New("invalid email or password")
 	}
@@ -50,8 +50,15 @@ func (a *AuthenticationManagementService) Authenticate(email, password string) (
 	if err != nil {
 		return domain.AuthResponse{}, errors.New("failed to store refresh token")
 	}
-
-	return domain.AuthResponse{Access_token: accessToken, Refresh_token: refreshToken}, nil
+	sessionUser := domain.SessionUser{
+		ID:   user.ID,
+		Role: user.RoleName,
+	}
+	return domain.AuthResponse{
+		Access_token:  accessToken,
+		Refresh_token: refreshToken,
+		SessionUser:   sessionUser,
+	}, nil
 }
 
 // RefreshToken generates a new access token if the refresh token is valid
