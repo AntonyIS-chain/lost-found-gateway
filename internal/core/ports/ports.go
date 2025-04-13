@@ -37,3 +37,27 @@ type RoleService interface {
 type ProxyService interface {
 	ForwardRequest(req domain.ProxyRequest) (domain.ProxyResponse, error)
 }
+
+
+type GatewayService interface {
+    // AuthenticateToken validates the access token and returns user claims or an error.
+    AuthenticateToken(token string) (map[string]interface{}, error)
+
+    // AuthorizeRequest checks if the user has permission to access the resource.
+    AuthorizeRequest(userClaims map[string]interface{}, route string, method string) error
+
+    // RouteRequest forwards the request to the appropriate microservice based on the path and method.
+    RouteRequest(path string, method string, payload []byte, headers map[string]string) ([]byte, error)
+
+    // TransformRequest modifies the incoming request before sending it to the backend service.
+    TransformRequest(path string, method string, originalPayload []byte, headers map[string]string) ([]byte, map[string]string, error)
+
+    // TransformResponse modifies the response before returning it to the client.
+    TransformResponse(responsePayload []byte, headers map[string]string) ([]byte, error)
+
+    // LogRequest records the details of incoming requests for monitoring or debugging.
+    LogRequest(userClaims map[string]interface{}, path string, method string, statusCode int)
+
+    // HandleError provides standardized error formatting and logging for failed requests.
+    HandleError(err error) ([]byte, int)
+}

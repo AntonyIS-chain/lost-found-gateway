@@ -1,39 +1,26 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/AntonyIS-chain/lost-found-gateway/config"
-	app "github.com/AntonyIS-chain/lost-found-gateway/internal/adapters/app/handlers"
-	"github.com/AntonyIS-chain/lost-found-gateway/internal/adapters/postgresDB"
+	"github.com/AntonyIS-chain/lost-found-gateway/internal/adapters/app/handler"
 	"github.com/AntonyIS-chain/lost-found-gateway/internal/core/services"
-	"github.com/AntonyIS-chain/lost-found-gateway/pkg"
 )
 
 // GatewayServer initializes and starts the API Gateway
 func GatewayServer() {
-	// Load configuration
+
 	conf, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Initialize database client
-	dbClient, err := postgresDB.NewPostgresDBClient(conf)
-	if err != nil {
-		log.Fatalf("Failed to initialize database client: %v", err)
-	}
+	service := services.NewGatewayService()
+	handler := handler.NewGatewayHandler(service)
 
-
-	// Initialize services
-	rolesService := services.NewRoleManagementService(dbClient)
-	usersService := services.NewAuthenticationManagementService(dbClient, *conf)
-
-	// Seed "User Admin" role
-	pkg.SeedRoles(rolesService)
-	pkg.SeedUsers(usersService, rolesService)
-	// Initialize serviceserror
-
-	// Start HTTP server with initialized services
-	app.InitGinRoutes(usersService, conf)
+	log.Printf("🚀 Gateway listening on :%v", conf.GATEWAY_PORT)
+	http.ListenAndServe(fmt.Sprintf(":%v", conf.GATEWAY_PORT), handler)
 }
